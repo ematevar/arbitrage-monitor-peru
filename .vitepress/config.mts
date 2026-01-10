@@ -8,6 +8,19 @@ import spec from '../public/argentina/openapi.json' with { type: 'json' }
 
 const sidebar = useSidebar({ spec })
 
+/**
+ * Recursively adds a region prefix to all sidebar item links.
+ * This ensures that sidebar navigation links include the correct region path.
+ * 
+ * @param {string} prefix - The region prefix to add (e.g., '/argentina')
+ * @param {Object} items - The sidebar items object containing an items array
+ * @param {Array} items.items - Array of sidebar item objects
+ * @returns {Object} Modified items object with prefixed links
+ * 
+ * @example
+ * // Input: prefix = '/argentina', items = { items: [{ link: '/api' }] }
+ * // Output: { items: [{ link: '/argentina/api' }] }
+ */
 function addRegionPrefixToSidebarItems(prefix, items) {
   return {
     items: items.items.map((item) => {
@@ -15,7 +28,7 @@ function addRegionPrefixToSidebarItems(prefix, items) {
         item.link = `${prefix}${item.link}`
 
       if (item.items)
-        item.items = addRegionPrefixToSidebarItems(item.items)
+        item.items = addRegionPrefixToSidebarItems(prefix, { items: item.items })
 
       return item
     }),
@@ -30,30 +43,30 @@ const operationsOnlyArgentina = [
 ]
 
 const sidebarItems = collect(regions)
-    .mapWithKeys(region => [
-      `/${region.slug}/`,
-      sidebar
-        .generateSidebarGroups()
-        .map(group => {
-          return {
-            ...group,
-            ...addRegionPrefixToSidebarItems(`/${region.slug}`, group),
-          }
-        })
-        .map(group => {
-          return {
-            ...group,
-            items: group.items.filter(item => {
-              if (region.slug === 'argentina') {
-                return true
-              }
+  .mapWithKeys(region => [
+    `/${region.slug}/`,
+    sidebar
+      .generateSidebarGroups()
+      .map(group => {
+        return {
+          ...group,
+          ...addRegionPrefixToSidebarItems(`/${region.slug}`, group),
+        }
+      })
+      .map(group => {
+        return {
+          ...group,
+          items: group.items.filter(item => {
+            if (region.slug === 'argentina') {
+              return true
+            }
 
-              return !operationsOnlyArgentina.some(path => item.link.includes(path))
-            }),
-          }
-        })
-    ])
-    .all()
+            return !operationsOnlyArgentina.some(path => item.link.includes(path))
+          }),
+        }
+      })
+  ])
+  .all()
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
