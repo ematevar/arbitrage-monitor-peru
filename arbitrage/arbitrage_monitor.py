@@ -281,6 +281,19 @@ class CriptoYaArbitrageMonitor:
                 if quotes:
                     opportunities = self.calculate_spreads(quotes, coin, fiat)
                     all_opportunities.extend(opportunities)
+                    
+                    # Guardar snapshot completo si usa BD avanzada
+                    if self.save_to_db and self.db_advanced:
+                        try:
+                            self.db_advanced.save_market_snapshot(
+                                coin=coin,
+                                fiat=fiat,
+                                volume=self.VOLUME,
+                                quotes_data=quotes,
+                                opportunities=opportunities
+                            )
+                        except Exception as e:
+                            print(f"{Fore.YELLOW}⚠️  Error guardando snapshot: {e}")
                 
                 # Pausa entre peticiones para respetar rate limiting
                 time.sleep(self.request_delay)
@@ -288,8 +301,8 @@ class CriptoYaArbitrageMonitor:
         # Ordenar todas las oportunidades por spread
         all_opportunities.sort(key=lambda x: x.spread_percentage, reverse=True)
         
-        # Guardar en base de datos si está habilitado
-        if self.save_to_db and self.db and all_opportunities:
+        # Guardar en base de datos básica si no es avanzada
+        if self.save_to_db and self.db and not self.db_advanced and all_opportunities:
             saved_count = self.db.save_opportunities(all_opportunities)
             print(f"{Fore.GREEN}✓ Guardadas {saved_count} oportunidades en BD")
         
@@ -315,13 +328,20 @@ class CriptoYaArbitrageMonitor:
                 
         except KeyboardInterrupt:
             print(f"\n{Fore.YELLOW}⏹️  Monitor detenido por el usuario")
-            if self.db:
+            if self.db_advanced:
+                snapshots = self.db_advanced.get_total_snapshots()
+                opps = self.db_advanced.get_total_opportunities()
+                print(f"{Fore.CYAN}💾 Snapshots: {snapshots} | Oportunidades: {opps}")
+                self.db_advanced.close()
+            elif self.db:
                 total = self.db.get_total_opportunities()
                 print(f"{Fore.CYAN}💾 Total de oportunidades guardadas: {total}")
                 self.db.close()
         except Exception as e:
             print(f"\n{Fore.RED}❌ Error inesperado: {e}")
-            if self.db:
+            if self.db_advanced:
+                self.db_advanced.close()
+            elif self.db:
                 self.db.close()
 
 def main():
@@ -386,6 +406,12 @@ Ejemplos de uso:
         help='Ruta al archivo de base de datos (default: arbitrage_opportunities.db)'
     )
     
+    parser.add_argument(
+        '--use-advanced-db',
+        action='store_true',
+        help='Usar esquema avanzado con snapshots completos del mercado'
+    )
+    
     args = parser.parse_args()
     
     # Crear monitor
@@ -394,7 +420,8 @@ Ejemplos de uso:
         update_interval=args.interval,
         request_delay=args.delay,
         save_to_db=args.save_db,
-        db_path=args.db_path
+        db_path=args.db_path,
+        use_advanced_db=args.use_advanced_db
     )
     
     # Configurar monedas personalizadas si se especificaron
