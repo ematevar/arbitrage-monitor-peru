@@ -1,0 +1,5 @@
+# Ignorar package.json para Railway
+# Railway debe usar Python, no Node.js
+package.json
+package-lock.json
+pnpm-lock.yaml

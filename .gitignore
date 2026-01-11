@@ -1,6 +1,7 @@
 # Railway-specific
 .railway/
 railway.json
+nixpacks.toml
 
 # Python
 __pycache__/
@@ -10,12 +11,13 @@ __pycache__/
 .Python
 *.db
 *.db-journal
+venv/
+ENV/
+env/
 
 # Environment
 .env
 .env.local
-venv/
-ENV/
 
 # IDE
 .vscode/
@@ -27,8 +29,14 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# Node (for VitePress docs)
+# Node (VitePress docs - ignore for Railway)
 node_modules/
 .pnpm-store/
 dist/
 .cache/
+package-lock.json
+pnpm-lock.yaml
+
+# VitePress cache
+.vitepress/cache/
+.vitepress/dist/
