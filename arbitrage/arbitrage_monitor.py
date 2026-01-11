@@ -19,6 +19,12 @@ try:
 except ImportError:
     DB_AVAILABLE = False
 
+try:
+    from arbitrage_db_advanced import ArbitrageDatabaseAdvanced
+    DB_ADVANCED_AVAILABLE = True
+except ImportError:
+    DB_ADVANCED_AVAILABLE = False
+
 # Inicializar colorama para colores en terminal
 init(autoreset=True)
 
@@ -55,7 +61,7 @@ class CriptoYaArbitrageMonitor:
     # Delay entre peticiones para evitar rate limiting (segundos)
     REQUEST_DELAY = 0.5
     
-    def __init__(self, min_spread: float = 0.5, update_interval: int = 30, request_delay: float = 0.5, save_to_db: bool = False, db_path: str = "arbitrage_opportunities.db"):
+    def __init__(self, min_spread: float = 0.5, update_interval: int = 30, request_delay: float = 0.5, save_to_db: bool = False, db_path: str = "arbitrage_opportunities.db", use_advanced_db: bool = False):
         """
         Inicializa el monitor de arbitraje
         
@@ -65,20 +71,26 @@ class CriptoYaArbitrageMonitor:
             request_delay: Delay entre peticiones a la API en segundos
             save_to_db: Si True, guarda oportunidades en base de datos
             db_path: Ruta al archivo de base de datos
+            use_advanced_db: Si True, usa esquema avanzado con snapshots completos
         """
         self.min_spread = min_spread
         self.update_interval = max(update_interval, 30)  # Mínimo 30 segundos
         self.request_delay = request_delay
         self.save_to_db = save_to_db
+        self.use_advanced_db = use_advanced_db
         self.db = None
+        self.db_advanced = None
         
         if self.save_to_db:
-            if not DB_AVAILABLE:
-                print(f"{Fore.YELLOW}⚠️  Módulo de base de datos no disponible. Continuando sin guardar.")
-                self.save_to_db = False
-            else:
+            if use_advanced_db and DB_ADVANCED_AVAILABLE:
+                self.db_advanced = ArbitrageDatabaseAdvanced(db_path=db_path)
+                print(f"{Fore.GREEN}✓ Base de datos AVANZADA habilitada: {db_path}")
+            elif DB_AVAILABLE:
                 self.db = ArbitrageDatabase(db_path)
                 print(f"{Fore.GREEN}✓ Base de datos habilitada: {db_path}")
+            else:
+                print(f"{Fore.YELLOW}⚠️  Módulo de base de datos no disponible. Continuando sin guardar.")
+                self.save_to_db = False
         
         self.session = requests.Session()
         self.session.headers.update({

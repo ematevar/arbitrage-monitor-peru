@@ -1,18 +1,34 @@
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Railway-specific
+.railway/
+railway.json
 
-node_modules
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.db
+*.db-journal
 
-dist
-dist-ssr
-.vercel
-
-.idea
+# Environment
 .env
-.vitepress/cache
-.vitepress/.temp
+.env.local
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (for VitePress docs)
+node_modules/
+.pnpm-store/
+dist/
+.cache/
