@@ -33,15 +33,14 @@
                                 "xapo",
                                 "cryptomkt",
                                 "bybitp2p",
-                                "bitgetp2p",
-                                "coinexp2p",
-                                "binancep2p",
                                 "buda",
-                                "cryptomktpro",
-                                "paxfulp2p",
-                                "bingxp2p",
+                                "binancep2p",
+                                "bitgetp2p",
                                 "okexp2p",
-                                "lnp2pbotp2p"
+                                "vitawallet",
+                                "coinexp2p",
+                                "cryptomktpro",
+                                "bingxp2p"
                             ],
                             "example": "satoshitango"
                         }
