@@ -31,15 +31,15 @@
                             "enum": [
                                 "satoshitango",
                                 "xapo",
-                                "cryptomkt",
-                                "bybitp2p",
-                                "buda",
-                                "binancep2p",
                                 "bitgetp2p",
-                                "okexp2p",
+                                "bybitp2p",
+                                "binancep2p",
+                                "cryptomkt",
                                 "vitawallet",
+                                "buda",
                                 "coinexp2p",
                                 "cryptomktpro",
+                                "okexp2p",
                                 "bingxp2p"
                             ],
                             "example": "satoshitango"
